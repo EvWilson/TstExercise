@@ -1,0 +1,9 @@
+services:
+  problem1:
+    build:
+      dockerfile: docker/prob1/Dockerfile
+      context: .
+  problem2:
+    build:
+      dockerfile: docker/prob2/Dockerfile
+      context: .
