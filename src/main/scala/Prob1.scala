@@ -38,28 +38,31 @@ def getBestGroupPrices(
     rates: Seq[Rate],
     prices: Seq[CabinPrice]
 ): Seq[BestGroupPrice] =
+  // Build rate code to rate group mapping
   val rateMap = rates.foldLeft(HashMap.empty[String, String]) { (map, rate) =>
     map += (rate.rateCode -> rate.rateGroup)
   }
 
   val minPrices = prices
-    .map(it =>
+    // Augment prices with rate group mappings
+    .map(price =>
       BestGroupPrice(
-        it.cabinCode,
-        it.rateCode,
-        it.price,
+        price.cabinCode,
+        price.rateCode,
+        price.price,
         rateMap.getOrElse(
-          it.rateCode,
+          price.rateCode,
           // Throwing exception here as I didn't want to alter the function signature to
           // return an error type like Either
           throw new NoSuchElementException(
-            s"expected to find rate group for rate code '${it.rateCode}'"
+            s"expected to find rate group for rate code '${price.rateCode}'"
           )
         )
       )
     )
-    .groupBy(it => s"${it.cabinCode}${it.rateGroup}")
-    .mapValues(_.minBy(_.price))
+    // Group prices by cabin and rate group, take cheapest
+    .groupBy(price => s"${price.cabinCode}${price.rateGroup}")
+    .mapValues(groupedPrices => groupedPrices.minBy(price => price.price))
     .values
     .toSeq
 

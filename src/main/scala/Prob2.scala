@@ -20,7 +20,10 @@ case class PromotionCombo(promotionCodes: Seq[String])
 def allCombinablePromotions(
     allPromotions: Seq[Promotion]
 ): Seq[PromotionCombo] =
-  val promotionItems = Seq("P1", "P2", "P3", "P4", "P5")
+  // Gather all distinct promotion codes
+  val promotionItems = allPromotions.flatMap { promo =>
+    promo.code +: promo.notCombinableWith
+  }.distinct
   // Get all combinations of the promotion items
   val combinations =
     (1 to promotionItems.size).flatMap(promotionItems.combinations)
